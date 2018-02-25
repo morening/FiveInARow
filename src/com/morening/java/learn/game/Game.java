@@ -1,6 +1,9 @@
-package com.morening.java.learn;
+package com.morening.java.learn.game;
 
-import java.util.Arrays;
+import com.morening.java.learn.util.GameUtil;
+import com.morening.java.learn.util.RecordLogger;
+
+import java.io.IOException;
 
 public class Game {
     public static final int MAX_BOARD_SIZE = 15;
@@ -32,6 +35,11 @@ public class Game {
         }
         player1.setEnemyMark(player2.getPlayerMark());
         player2.setEnemyMark(player1.getPlayerMark());
+        try {
+            RecordLogger.getInstance().setFilePath("record.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         int count = 0;
         while (true){
@@ -41,11 +49,12 @@ public class Game {
             }
             count++;
             printBoard(board, move);
+            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, move[0], move[1]));
             if (count >= MAX_BOARD_SIZE*MAX_BOARD_SIZE){
                 System.out.println("平局");
                 break;
             }
-            if (isGameOver(board, move)){
+            if (GameUtil.isFiveInARow(board, move, board[move[0]][move[1]])){
                 System.out.println(String.format("%s 先手获胜", player1.getPlayerName()));
                 break;
             }
@@ -54,42 +63,12 @@ public class Game {
             }
             count++;
             printBoard(board, move);
-            if (isGameOver(board, move)){
+            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, move[0], move[1]));
+            if (GameUtil.isFiveInARow(board, move, board[move[0]][move[1]])){
                 System.out.println(String.format("%s 后手获胜", player2.getPlayerName()));
                 break;
             }
         }
-    }
-
-    private boolean isGameOver(char[][] board, int[] move) {
-        char mark = board[move[0]][move[1]];
-        int[] count = new int[4];
-        Arrays.fill(count, 1);
-        count[0] += countRow(board, move[0], move[1], -1, 0, mark);
-        count[1] += countRow(board, move[0], move[1], -1, 1, mark);
-        count[2] += countRow(board, move[0], move[1], 0, 1, mark);
-        count[3] += countRow(board, move[0], move[1], 1, 1, mark);
-        count[0] += countRow(board, move[0], move[1], 1, 0, mark);
-        count[1] += countRow(board, move[0], move[1], 1, -1, mark);
-        count[2] += countRow(board, move[0], move[1], 0, -1, mark);
-        count[3] += countRow(board, move[0], move[1], -1, -1, mark);
-
-        for (int k=0; k<4; k++){
-            if (count[k] >= 5){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private int countRow(char[][] board, int row, int col, int offset_row, int offset_col, char mark){
-        if (row+offset_row >= 0 && row+offset_row < Game.MAX_BOARD_SIZE
-                && col+offset_col >= 0 && col+offset_col < Game.MAX_BOARD_SIZE
-                && board[row+offset_row][col+offset_col] == mark){
-            return countRow(board, row+offset_row, col+offset_col, offset_row, offset_col, mark) + 1;
-        }
-        return 0;
     }
 
     private void printBoard(char[][] board, int[] move){

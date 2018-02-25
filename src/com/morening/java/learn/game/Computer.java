@@ -1,6 +1,10 @@
-package com.morening.java.learn;
+package com.morening.java.learn.game;
 
-import java.util.Arrays;
+import com.morening.java.learn.util.DecisionLogger;
+import com.morening.java.learn.util.FileLogger;
+import com.morening.java.learn.util.GameUtil;
+
+import java.io.IOException;
 import java.util.Random;
 
 public class Computer implements IPlayer {
@@ -9,6 +13,8 @@ public class Computer implements IPlayer {
     private String NAME = "计算机";
     private char MARK = 'C';
     private char ENEMY_MARK = Game.MARK;
+
+    private int turn = 0;
 
     public Computer(int depth) {
         if (depth <= 0){
@@ -19,6 +25,13 @@ public class Computer implements IPlayer {
 
     @Override
     public boolean makeDecision(char[][] board, int[] move) {
+        turn++;
+        try {
+            DecisionLogger.getInstance().setFilePath(String.format("turn_%d.txt", turn));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println(String.format("等待 %s 决定落子位置...", NAME));
         if (isHandFirst(board)){
             generateHandFirst(board, move);
@@ -111,6 +124,8 @@ public class Computer implements IPlayer {
     private int evaluate(char[][] board, char mark, char enemy_mark) {
         int score = calcScore(board, mark);
         int enemy_score = calcScore(board, enemy_mark);
+
+        DecisionLogger.getInstance().doLogging(DecisionLogger.getLoggingMsg(board, score, enemy_score));
 
         return score - enemy_score;
     }
@@ -344,7 +359,7 @@ public class Computer implements IPlayer {
     private boolean willWin(char[][] board, int[] ret, char mark) {
         for (int i=0; i<Game.MAX_BOARD_SIZE; i++){
             for (int j=0; j<Game.MAX_BOARD_SIZE; j++){
-                if (board[i][j] == Game.MARK && hasNeighbor(board, i, j, mark) && isFiveInARow(board, i, j, mark)){
+                if (board[i][j] == Game.MARK && hasNeighbor(board, i, j, mark) && GameUtil.isFiveInARow(board, new int[]{i, j}, mark)){
                     ret[0] = i;
                     ret[1] = j;
                     return true;
@@ -353,37 +368,6 @@ public class Computer implements IPlayer {
         }
 
         return false;
-    }
-
-    private boolean isFiveInARow(char[][] board, int i, int j, char mark) {
-
-        int[] count = new int[4];
-        Arrays.fill(count, 1);
-        count[0] += countRow(board, i, j, -1, 0, mark);
-        count[1] += countRow(board, i, j, -1, 1, mark);
-        count[2] += countRow(board, i, j, 0, 1, mark);
-        count[3] += countRow(board, i, j, 1, 1, mark);
-        count[0] += countRow(board, i, j, 1, 0, mark);
-        count[1] += countRow(board, i, j, 1, -1, mark);
-        count[2] += countRow(board, i, j, 0, -1, mark);
-        count[3] += countRow(board, i, j, -1, -1, mark);
-
-        for (int k=0; k<4; k++){
-            if (count[k] >= 5){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private int countRow(char[][] board, int row, int col, int offset_row, int offset_col, char mark){
-        if (row+offset_row >= 0 && row+offset_row < Game.MAX_BOARD_SIZE
-                && col+offset_col >= 0 && col+offset_col < Game.MAX_BOARD_SIZE
-                && board[row+offset_row][col+offset_col] == mark){
-            return countRow(board, row+offset_row, col+offset_col, offset_row, offset_col, mark) + 1;
-        }
-        return 0;
     }
 
     private void insertTreeNode(Node parent, Node temp) {

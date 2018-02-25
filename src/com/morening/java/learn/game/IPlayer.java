@@ -1,4 +1,4 @@
-package com.morening.java.learn;
+package com.morening.java.learn.game;
 
 public interface IPlayer {
 
