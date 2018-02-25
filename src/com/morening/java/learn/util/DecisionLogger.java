@@ -20,7 +20,7 @@ public class DecisionLogger extends FileLogger{
     public static String getLoggingMsg(char[][] board, int score, int enemy_score) {
         StringBuffer sb = new StringBuffer();
 
-        sb.append(String.format("Computer: %d  Human: %d  Evaluate: %d\n", score, enemy_score, (score - enemy_score)));
+        sb.append(String.format("Score1: %d  Score2: %d  Evaluate: %d\n", score, enemy_score, (score - enemy_score)));
 
         sb.append(FileLogger.convertBoard2Msg(board));
 

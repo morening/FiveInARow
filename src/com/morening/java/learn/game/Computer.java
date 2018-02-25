@@ -299,10 +299,10 @@ public class Computer implements IPlayer {
                 if (parent.board[i][j] == Game.MARK
                         && (hasNeighbor(parent.board, i, j, mark) || hasNeighbor(parent.board, i, j, enemy_mark))){
                     Node temp = new Node(parent.board, i, j, mark, parent.depth+1);
-                    if (!isSame(temp.board, 0, row)){
+//                    if (!isSame(temp.board, 0, row)){
                         insertTreeNode(parent, temp);
                         createGameTree(temp, row);
-                    }
+//                    }
                 }
             }
         }

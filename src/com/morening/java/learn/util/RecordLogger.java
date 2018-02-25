@@ -17,10 +17,10 @@ public class RecordLogger extends FileLogger{
         init(LOGGER_NAME);
     }
 
-    public static String getLoggingMsg(char[][] board, int row, int col) {
+    public static String getLoggingMsg(char[][] board, String playerName, int row, int col) {
         StringBuffer sb = new StringBuffer();
 
-        sb.append(String.format("落子位置（%d, %d）\n", row, col));
+        sb.append(String.format("%s 落子位置（%d, %d）\n", playerName, row, col));
 
         sb.append(FileLogger.convertBoard2Msg(board));
 
