@@ -47,12 +47,13 @@ public class Game {
             turn++;
             RecordLogger.getInstance().doLogging(String.format("===  第 %d 回合  ===\n", turn));
             int[] move = new int[2];
+            long time = System.currentTimeMillis();
             if (!player1.makeDecision(board, move)){
                 continue;
             }
+            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, player1.getPlayerName(), move[0], move[1], (System.currentTimeMillis() - time)/1000.0f));
             count++;
             printBoard(board, move);
-            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, player1.getPlayerName(), move[0], move[1]));
             if (count >= MAX_BOARD_SIZE*MAX_BOARD_SIZE){
                 System.out.println("平局");
                 break;
@@ -61,12 +62,13 @@ public class Game {
                 System.out.println(String.format("%s 先手获胜", player1.getPlayerName()));
                 break;
             }
+            time = System.currentTimeMillis();
             if (!player2.makeDecision(board, move)){
                 continue;
             }
+            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, player2.getPlayerName(), move[0], move[1], (System.currentTimeMillis() - time)/1000.0f));
             count++;
             printBoard(board, move);
-            RecordLogger.getInstance().doLogging(RecordLogger.getLoggingMsg(board, player2.getPlayerName(), move[0], move[1]));
             if (GameUtil.isFiveInARow(board, move, board[move[0]][move[1]])){
                 System.out.println(String.format("%s 后手获胜", player2.getPlayerName()));
                 break;

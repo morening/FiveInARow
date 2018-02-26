@@ -1,7 +1,6 @@
 package com.morening.java.learn.game;
 
 import com.morening.java.learn.util.DecisionLogger;
-import com.morening.java.learn.util.FileLogger;
 import com.morening.java.learn.util.GameUtil;
 
 import java.io.IOException;
@@ -38,8 +37,7 @@ public class Computer implements IPlayer {
             return true;
         }
         Node root = new Node(board, ENEMY_MARK, 0);
-        Row row = new Row();
-        createGameTree(root, row);
+        createGameTree(root);
         populateGameTree(root);
         outputDecision(root, board, move);
 
@@ -89,7 +87,12 @@ public class Computer implements IPlayer {
         char enemy_mark = mark == MARK ? ENEMY_MARK: MARK;
         Node child = root.child;
         if (child == null){
-            root.value = evaluate(root.board, mark, enemy_mark);
+            int value = evaluate(root.board, mark, enemy_mark);
+            if (root.depth % 2 == 1){
+                root.value = value;
+            } else {
+                root.value = -value;
+            }
             return;
         }
         Node parent = root.parent;
@@ -125,7 +128,7 @@ public class Computer implements IPlayer {
         int score = calcScore(board, mark);
         int enemy_score = calcScore(board, enemy_mark);
 
-        DecisionLogger.getInstance().doLogging(DecisionLogger.getLoggingMsg(board, score, enemy_score));
+        DecisionLogger.getInstance().doLogging(DecisionLogger.getLoggingMsg(board, mark, score, enemy_mark, enemy_score));
 
         return score - enemy_score;
     }
@@ -282,7 +285,7 @@ public class Computer implements IPlayer {
         return score;
     }
 
-    private void createGameTree(Node parent, Row row) {
+    private void createGameTree(Node parent) {
         if (parent.depth >= MAX_GAME_TREE_DEPTH){
             return;
         }
@@ -299,60 +302,10 @@ public class Computer implements IPlayer {
                 if (parent.board[i][j] == Game.MARK
                         && (hasNeighbor(parent.board, i, j, mark) || hasNeighbor(parent.board, i, j, enemy_mark))){
                     Node temp = new Node(parent.board, i, j, mark, parent.depth+1);
-//                    if (!isSame(temp.board, 0, row)){
-                        insertTreeNode(parent, temp);
-                        createGameTree(temp, row);
-//                    }
+                    insertTreeNode(parent, temp);
+                    createGameTree(temp);
                 }
             }
-        }
-    }
-
-    private boolean isSame(char[][] board, int index, Row head) {
-        if (head == null || index >= Game.MAX_BOARD_SIZE){
-            return true;
-        }
-        Row cur = head.next;
-        while (cur != null){
-            if (isRowSame(board[index], cur.row)){
-                return isSame(board, index+1, cur);
-            }
-            cur = cur.other;
-        }
-        Row temp = new Row(board[index]);
-        insertRowNode(head, temp);
-        isSame(board, index+1, temp);
-
-        return false;
-    }
-
-    private void insertRowNode(Row head, Row temp) {
-        temp.other = head.next;
-        head.next = temp;
-    }
-
-    private boolean isRowSame(char[] row1, char[] row2) {
-        for (int k=0; k<Game.MAX_BOARD_SIZE; k++){
-            if (row1[k] != row2[k]){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private class Row{
-        char[] row = null;
-
-        Row next = null;
-
-        Row other = null;
-
-        public Row(){
-
-        }
-
-        public Row(char[] row){
-            this.row = row;
         }
     }
 
