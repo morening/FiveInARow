@@ -1,5 +1,6 @@
 package com.morening.java.learn.game;
 
+import com.morening.java.learn.model.Move;
 import com.morening.java.learn.util.DecisionLogger;
 import com.morening.java.learn.util.GameUtil;
 
@@ -23,7 +24,7 @@ public class Computer implements IPlayer {
     }
 
     @Override
-    public boolean makeDecision(char[][] board, int[] move) {
+    public boolean makeDecision(char[][] board, Move move, Move next) {
         turn++;
         try {
             DecisionLogger.getInstance().setFilePath(String.format("turn_%d.txt", turn));
@@ -33,23 +34,23 @@ public class Computer implements IPlayer {
 
         System.out.println(String.format("等待 %s 决定落子位置...", NAME));
         if (isHandFirst(board)){
-            generateHandFirst(board, move);
+            generateHandFirst(board, next);
             return true;
         }
         Node root = new Node(board, ENEMY_MARK, 0);
         createGameTree(root);
         populateGameTree(root);
-        outputDecision(root, board, move);
+        outputDecision(root, board, next);
 
         return true;
     }
 
-    private void generateHandFirst(char[][] board, int[] move) {
+    private void generateHandFirst(char[][] board, Move next) {
         int row = new Random().nextInt(Game.MAX_BOARD_SIZE);
         int col = new Random().nextInt(Game.MAX_BOARD_SIZE);
         board[row][col] = MARK;
-        move[0] = row;
-        move[1] = col;
+        next.y = row;
+        next.x = col;
     }
 
     private boolean isHandFirst(char[][] board) {
@@ -63,23 +64,23 @@ public class Computer implements IPlayer {
         return true;
     }
 
-    private void outputDecision(Node root, char[][] board, int[] move) {
+    private void outputDecision(Node root, char[][] board, Move next) {
         Node child = root.child;
-        Node next = null;
+        Node nextNode = null;
         int maxValue = Integer.MIN_VALUE;
         while (child != null){
             if (maxValue < child.value){
                 maxValue = child.value;
-                next = child;
+                nextNode = child;
             }
             child = child.brother;
         }
         if (next == null){
             return;
         }
-        copyBoard(next.board, board);
-        move[0] = next.row;
-        move[1] = next.col;
+        copyBoard(nextNode.board, board);
+        next.y = nextNode.row;
+        next.x = nextNode.col;
     }
 
     private void populateGameTree(Node root) {
@@ -312,7 +313,7 @@ public class Computer implements IPlayer {
     private boolean willWin(char[][] board, int[] ret, char mark) {
         for (int i=0; i<Game.MAX_BOARD_SIZE; i++){
             for (int j=0; j<Game.MAX_BOARD_SIZE; j++){
-                if (board[i][j] == Game.MARK && hasNeighbor(board, i, j, mark) && GameUtil.isFiveInARow(board, new int[]{i, j}, mark)){
+                if (board[i][j] == Game.MARK && hasNeighbor(board, i, j, mark) && GameUtil.isFiveInARow(board, new Move(j, i), mark)){
                     ret[0] = i;
                     ret[1] = j;
                     return true;

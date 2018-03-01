@@ -1,23 +1,24 @@
 package com.morening.java.learn.util;
 
 import com.morening.java.learn.game.Game;
+import com.morening.java.learn.model.Move;
 
 import java.util.Arrays;
 
 public class GameUtil {
 
-    public static boolean isFiveInARow(char[][] board, int[] move, char mark) {
+    public static boolean isFiveInARow(char[][] board, Move next, char mark) {
 
         int[] count = new int[4];
         Arrays.fill(count, 1);
-        count[0] += countRow(board, move[0], move[1], -1, 0, mark);
-        count[1] += countRow(board, move[0], move[1], -1, 1, mark);
-        count[2] += countRow(board, move[0], move[1], 0, 1, mark);
-        count[3] += countRow(board, move[0], move[1], 1, 1, mark);
-        count[0] += countRow(board, move[0], move[1], 1, 0, mark);
-        count[1] += countRow(board, move[0], move[1], 1, -1, mark);
-        count[2] += countRow(board, move[0], move[1], 0, -1, mark);
-        count[3] += countRow(board, move[0], move[1], -1, -1, mark);
+        count[0] += countRow(board, next.y, next.x, -1, 0, mark);
+        count[1] += countRow(board, next.y, next.x, -1, 1, mark);
+        count[2] += countRow(board, next.y, next.x, 0, 1, mark);
+        count[3] += countRow(board, next.y, next.x, 1, 1, mark);
+        count[0] += countRow(board, next.y, next.x, 1, 0, mark);
+        count[1] += countRow(board, next.y, next.x, 1, -1, mark);
+        count[2] += countRow(board, next.y, next.x, 0, -1, mark);
+        count[3] += countRow(board, next.y, next.x, -1, -1, mark);
 
         for (int k=0; k<4; k++){
             if (count[k] >= 5){

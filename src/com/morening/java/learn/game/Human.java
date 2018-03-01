@@ -1,6 +1,6 @@
 package com.morening.java.learn.game;
 
-import java.util.Scanner;
+import com.morening.java.learn.model.Move;
 
 public class Human implements IPlayer {
 
@@ -8,24 +8,18 @@ public class Human implements IPlayer {
     private char MARK = 'H';
     private char ENEMY_MARK = Game.MARK;
 
-    private Scanner sc = null;
-
-    public Human(Scanner sc) {
-        this.sc = sc;
-    }
-
     @Override
-    public boolean makeDecision(char[][] board, int[] move) {
+    public boolean makeDecision(char[][] board, Move move, Move next) {
         System.out.println(String.format("请 %s 决定落子位置：", NAME));
-        int row = sc.nextInt();
-        int col = sc.nextInt();
+        int row = move.y;
+        int col = move.x;
         if (row >= 0 && row < Game.MAX_BOARD_SIZE
                 && col >= 0 && col < Game.MAX_BOARD_SIZE
                 && board[row][col] == Game.MARK){
             board[row][col] = MARK;
 
-            move[0] = row;
-            move[1] = col;
+            next.x = col;
+            next.y = row;
             return true;
         }
 
